@@ -75,7 +75,14 @@ class MysqlCache {
      */
     connect(cb) {
         // Create a mysql connection pool with the configured
-        this.pool = this.mysql.createPool(this.config)
+        let reserved = ['TTL', 'verbose', 'caching', 'cacheProvider', 'hashing', 'prettyError', 'cacheProviderSetup'];
+        let mysql_config = Object.keys(this.config)
+            .filter(key => !reserved.includes(key))
+            .reduce((obj, key) => {
+                obj[key] = this.config[key];
+                return obj;
+            }, {});
+        this.pool = this.mysql.createPool(mysql_config);
 
         // Create the connection
         this.pool.getConnection((err, connection) => {
